@@ -1,9 +1,9 @@
 #include "render.h"
-#include "../core/vec3.h"
-#include "../scene/scene.h"
 #include <stdlib.h>
 #include <math.h>
-#include <../ray/ray.h>
+#include "../core/vec3.h"
+#include "../scene/scene.h"
+#include "../ray/ray.h"
 
 #ifndef PI
 #define PI 3.14159265358979323846f
@@ -49,7 +49,7 @@ void render_scene(void)
 
             float current_dist = 0.0f;
             int hit = 0;
-            for (int step = 0; step < 100; ++step)
+            for (int step = 0; step < 64; ++step)
             {
                 int result = ray_step(&ray, &current_dist, 100.0f, 0.01f);
                 if (result == 1)

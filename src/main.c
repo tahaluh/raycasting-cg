@@ -1,12 +1,19 @@
 #include <GL/glut.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "./render/render.h"
 
-#define WIN_W 640
-#define WIN_H 360
+static unsigned long g_frame = 0;
+static int g_prev_ms = 0;
+
+#define WIN_W 500
+#define WIN_H 300
 
 static void display(void)
 {
+    int now = glutGet(GLUT_ELAPSED_TIME);
+    int dt = (g_prev_ms == 0) ? 0 : (now - g_prev_ms);
+
     render_scene();
 
     const unsigned char *frame = render_get_frame();
@@ -15,6 +22,15 @@ static void display(void)
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glDrawPixels(WIN_W, WIN_H, GL_RGB, GL_UNSIGNED_BYTE, frame);
     glFlush();
+
+    double fps = (dt > 0) ? 1000.0 / dt : 0.0;
+    printf("[frame %lu] dt=%d ms, fps=%.1f\n", g_frame, dt, fps);
+    fflush(stdout);
+
+    g_prev_ms = now;
+    g_frame++;
+
+    glutPostRedisplay();
 }
 
 static void reshape(int w, int h)
