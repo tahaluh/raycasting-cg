@@ -1,6 +1,0 @@
-{
-    "files.associations": {
-        "scene.h": "c",
-        "vec3.h": "c"
-    }
-}

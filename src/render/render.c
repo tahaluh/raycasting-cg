@@ -1,6 +1,7 @@
+// src/render/render.c
 #include "render.h"
-#include "vec3.h"
-#include "scene.h"
+#include "../core/vec3.h"
+#include "../scene/scene.h"
 #include <stdlib.h>
 #include <math.h>
 

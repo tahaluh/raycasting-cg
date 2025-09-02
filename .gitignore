@@ -6,3 +6,6 @@ ray
 
 # build folders
 /bin/
+
+# vscode configs
+.vscode/

@@ -1,6 +1,6 @@
 #include <GL/glut.h>
 #include <stdlib.h>
-#include "render.h"
+#include "./render/render.h"
 
 #define WIN_W 640
 #define WIN_H 360
@@ -8,6 +8,7 @@
 static void display(void)
 {
     render_scene();
+
     const unsigned char *frame = render_get_frame();
     glClear(GL_COLOR_BUFFER_BIT);
     glRasterPos2f(-1.f, -1.f);

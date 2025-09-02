@@ -1,6 +1,5 @@
 #ifndef RENDER_H
 #define RENDER_H
-#include <stddef.h>
 #include <stdint.h>
 
 void render_init(int width, int height);

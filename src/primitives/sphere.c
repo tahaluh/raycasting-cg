@@ -1,7 +1,5 @@
-#include "scene.h"
+#include "sphere.h"
 #include <math.h>
-
-sphere_t g_sphere = {.c = {0.0f, 0.0f, -3.0f}, .r = 0.7f, .color = {1.0f, 0.2f, 0.2f}};
 
 float hit_sphere(vec3 orig, vec3 dir, const sphere_t *s)
 {

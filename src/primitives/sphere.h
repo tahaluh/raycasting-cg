@@ -1,6 +1,6 @@
-#ifndef SCENE_H
-#define SCENE_H
-#include "vec3.h"
+#ifndef SPHERE_H
+#define SPHERE_H
+#include "../core/vec3.h"
 
 typedef struct
 {
@@ -8,8 +8,6 @@ typedef struct
     float r;
     vec3 color;
 } sphere_t;
-
-extern sphere_t g_sphere;
 
 float hit_sphere(vec3 orig, vec3 dir, const sphere_t *s);
 
