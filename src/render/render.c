@@ -37,6 +37,8 @@ void render_scene(void)
     float aspect = (float)W / (float)H;
     float scale = tanf((fov_deg * 0.5f) * PI / 180.0f);
 
+// thread
+#pragma omp parallel for collapse(2) schedule(guided, 8)
     for (int j = 0; j < H; ++j)
     {
         for (int i = 0; i < W; ++i)
@@ -51,7 +53,7 @@ void render_scene(void)
             int hit = 0;
             for (int step = 0; step < 64; ++step)
             {
-                int result = ray_step(&ray, &current_dist, 100.0f, 0.01f);
+                int result = ray_step(&ray, &current_dist, 5.0f, 0.01f);
                 if (result == 1)
                 {
                     hit = 1;
