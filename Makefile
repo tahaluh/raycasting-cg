@@ -1,24 +1,24 @@
 # Makefile
 CC      := gcc
-CFLAGS  := -O2 -Wall -Wextra -Isrc
+CFLAGS  := -O2 -Wall -Wextra \
+           -Isrc -Isrc/core -Isrc/render -Isrc/scene -Isrc/primitives
 LDLIBS  := -lGL -lGLU -lglut -lm
 
 SRCDIR  := src
-INCDIR  := src
 OBJDIR  := build
 BINDIR  := bin
 TARGET  := $(BINDIR)/ray
 
-SRC     := $(SRCDIR)/main.c $(SRCDIR)/render.c $(SRCDIR)/scene.c
-OBJ     := $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(SRC))
+SRC := $(wildcard $(SRCDIR)/**/*.c) $(wildcard $(SRCDIR)/*.c)
+OBJ := $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(SRC))
 
-# ===== targets =====
 all: $(TARGET)
 
 $(TARGET): $(OBJ) | $(BINDIR)
 	$(CC) $(OBJ) -o $@ $(LDLIBS)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c | $(OBJDIR)
+	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJDIR) $(BINDIR):

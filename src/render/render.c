@@ -1,9 +1,9 @@
-// src/render/render.c
 #include "render.h"
 #include "../core/vec3.h"
 #include "../scene/scene.h"
 #include <stdlib.h>
 #include <math.h>
+#include <../ray/ray.h>
 
 #ifndef PI
 #define PI 3.14159265358979323846f
@@ -41,24 +41,43 @@ void render_scene(void)
     {
         for (int i = 0; i < W; ++i)
         {
-            float x = ((2.f * ((i + 0.5f) / (float)W) - 1.f)) * aspect * scale;
-            float y = (1.f - 2.f * ((j + 0.5f) / (float)H)) * scale;
-            vec3 dir = norm(V(x, y, -1.f));
+            // create a ray
+            vec3 dir = norm(V(((2.f * ((i + 0.5f) / (float)W) - 1.f)) * aspect * scale,
+                              (1.f - 2.f * ((j + 0.5f) / (float)H)) * scale,
+                              -1.f));
+            Ray ray = {cam_pos, dir};
 
-            float t = hit_sphere(cam_pos, dir, &g_sphere);
-
-            float r = 0.f, g = 0.f, b = 0.f;
-            if (t > 0.f)
+            float current_dist = 0.0f;
+            int hit = 0;
+            for (int step = 0; step < 100; ++step)
             {
-                r = g_sphere.color.x;
-                g = g_sphere.color.y;
-                b = g_sphere.color.z;
+                int result = ray_step(&ray, &current_dist, 100.0f, 0.01f);
+                if (result == 1)
+                {
+                    hit = 1;
+                    break;
+                }
+                if (result == -1)
+                {
+                    break;
+                }
             }
 
-            int idx = (j * W + i) * 3;
-            frame[idx + 0] = (unsigned char)(255.f * r);
-            frame[idx + 1] = (unsigned char)(255.f * g);
-            frame[idx + 2] = (unsigned char)(255.f * b);
+            int pixel_index = (j * W + i) * 3;
+            if (hit)
+            {
+                // paint red
+                frame[pixel_index + 0] = 255 / current_dist;
+                frame[pixel_index + 1] = 0;
+                frame[pixel_index + 2] = 0;
+            }
+            else
+            {
+                // paint black
+                frame[pixel_index + 0] = 0;
+                frame[pixel_index + 1] = 0;
+                frame[pixel_index + 2] = 0;
+            }
         }
     }
 }

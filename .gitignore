@@ -1,5 +1,4 @@
 # compiled binaries
-ray
 *.o
 *.out
 *.exe
