@@ -64,7 +64,7 @@ sudo apt-get install libomp-dev
 
 ```bash
 # Clone o repositório
-git clone https://github.com/tahaluh/raytracing-gravity.git
+git clone https://github.com/tahaluh/raycasting-cg.git
 cd raytracing-gravity
 
 # Compile o projeto
