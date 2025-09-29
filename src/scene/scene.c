@@ -13,7 +13,7 @@ static Body bodies[] = {
     {
         .type = BODY_PLANE,
         .centre = {0, -2, 0},
-        .geometry = {.plane = {.normal = {0, 1, 0}, .distance = 2.0f}},
+        .geometry = {.plane = {.normal = {0, -1, 0}, .distance = 1.0f}},
         .material = {.color = {1.0f, 1.0f, 1.0f}, 1.0f, 0.7f, 0.1f, 8.0f, 0.0f}}, // floor
 };
 static const int num_bodies = sizeof(bodies) / sizeof(bodies[0]);
@@ -30,13 +30,13 @@ static Light lights[] = {
         .type = LIGHT_DIRECTIONAL,
         .color = {1.0f, 1.0f, 1.0f},
         .intensity = 1.0f,
-        .direction = {-1, -1, -1}},
+        .direction = {1, 1, 1}},
     // point
     {
         .type = LIGHT_POINT,
         .color = {0.0f, 0.0f, 1.0f},
         .intensity = 0.9f,
-        .position = {-2, 2, -1}}};
+        .position = {-5, -2, -2}}};
 static const int num_lights = sizeof(lights) / sizeof(lights[0]);
 
 // shortest distance to any body

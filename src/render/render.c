@@ -129,3 +129,8 @@ void render_free(void)
         frame = NULL;
     }
 }
+
+vec3 render_get_camera_position(void)
+{
+    return g_camera.position;
+}
