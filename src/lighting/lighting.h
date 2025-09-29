@@ -33,4 +33,6 @@ vec3 calculate_lighting(const ShadingInfo *shading, const Light *lights, int num
 
 vec3 calculate_normal(vec3 point, const Body *body);
 
+int is_in_shadow(vec3 point, vec3 light_dir, float light_distance);
+
 #endif

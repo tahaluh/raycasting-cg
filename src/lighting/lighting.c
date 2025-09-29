@@ -1,4 +1,5 @@
 #include "lighting.h"
+#include "../scene/scene.h"
 #include <math.h>
 
 vec3 calculate_normal(vec3 point, const Body *body)
@@ -23,6 +24,12 @@ static vec3 calculate_directional_light(const Light *light, const ShadingInfo *s
 {
     vec3 light_dir = norm(mul(light->direction, -1.0f)); // Reverse direction
 
+    // shadows
+    if (is_in_shadow(shading->point, light_dir, 1000.0f))
+    {
+        return V(0, 0, 0);
+    }
+
     // Diffuse
     float diff = fmaxf(dot(shading->normal, light_dir), 0.0f);
     vec3 diffuse_color = V(shading->material.color.x * light->color.x,
@@ -43,6 +50,12 @@ static vec3 calculate_point_light(const Light *light, const ShadingInfo *shading
     vec3 light_dir = norm(sub(light->position, shading->point));
     float distance = sqrtf(dot(sub(light->position, shading->point), sub(light->position, shading->point)));
     float attenuation = 1.0f / (1.0f + 0.1f * distance + 0.01f * distance * distance);
+
+    // shadows
+    if (is_in_shadow(shading->point, light_dir, distance))
+    {
+        return V(0, 0, 0);
+    }
 
     // diffuse
     float diff = fmaxf(dot(shading->normal, light_dir), 0.0f);
@@ -80,4 +93,41 @@ vec3 calculate_lighting(const ShadingInfo *shading, const Light *lights, int num
     }
 
     return final_color;
+}
+
+int is_in_shadow(vec3 point, vec3 light_dir, float light_distance)
+{
+    float epsilon = 0.001f;
+    vec3 ray_origin = add(point, mul(light_dir, epsilon));
+
+    float current_dist = epsilon;
+    const float max_steps = 64;
+    const float min_dist = 0.001f;
+
+    for (int step = 0; step < max_steps; ++step)
+    {
+        if (current_dist >= light_distance - epsilon)
+        {
+            // reached light
+            return 0;
+        }
+
+        vec3 ray_pos = add(ray_origin, mul(light_dir, current_dist));
+        SdfResult result = scene_sdf(ray_pos, min_dist);
+
+        if (result.min_dist < min_dist)
+        {
+            // hit
+            return 1;
+        }
+
+        // step
+        float step_size = result.min_dist;
+        if (step_size < min_dist)
+            step_size = min_dist;
+
+        current_dist += step_size;
+    }
+
+    return 0;
 }
