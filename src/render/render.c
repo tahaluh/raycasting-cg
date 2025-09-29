@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "../core/vec3.h"
+#include "../core/camera.h"
 #include "../scene/scene.h"
 #include "../ray/ray.h"
 #include "../body/body.h"
@@ -14,7 +15,7 @@
 static int W = 0, H = 0;
 static unsigned char *frame = NULL;
 
-static vec3 cam_pos = {0, 0, 0};
+Camera g_camera;
 static float fov_deg = 60.0f;
 
 void render_init(int width, int height)
@@ -27,6 +28,9 @@ void render_init(int width, int height)
         frame = NULL;
     }
     frame = (unsigned char *)malloc((size_t)W * (size_t)H * 3);
+
+    // camera
+    camera_init(&g_camera);
 }
 
 const unsigned char *render_get_frame(void) { return frame; }
@@ -45,11 +49,11 @@ void render_scene(void)
     {
         for (int i = 0; i < W; ++i)
         {
-            // create a ray
-            vec3 dir = norm(V(((2.f * ((i + 0.5f) / (float)W) - 1.f)) * aspect * scale,
-                              (1.f - 2.f * ((j + 0.5f) / (float)H)) * scale,
-                              -1.f));
-            Ray ray = {cam_pos, dir};
+            // create a ray camera
+            float screen_x = (2.f * ((i + 0.5f) / (float)W) - 1.f);
+            float screen_y = (1.f - 2.f * ((j + 0.5f) / (float)H));
+            vec3 dir = camera_get_ray_direction(&g_camera, screen_x, screen_y, aspect, scale);
+            Ray ray = {g_camera.position, dir};
 
             float current_dist = 0.0f;
             Body *hit_body = NULL;

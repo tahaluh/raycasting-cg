@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "./render/render.h"
+#include "./core/input.h"
 
 static unsigned long g_frame = 0;
 static int g_prev_ms = 0;
@@ -13,6 +14,10 @@ static void display(void)
 {
     int now = glutGet(GLUT_ELAPSED_TIME);
     int dt = (g_prev_ms == 0) ? 0 : (now - g_prev_ms);
+
+    // input
+    float delta_time = dt / 1000.0f; // seconds
+    input_process(delta_time);
 
     render_scene();
 
@@ -58,9 +63,17 @@ int main(int argc, char **argv)
     glutCreateWindow("Raytracing Gravity");
 
     render_init(WIN_W, WIN_H);
+    input_init();
 
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);
+
+    // input
+    glutKeyboardFunc(input_keyboard_down);
+    glutKeyboardUpFunc(input_keyboard_up);
+    glutSpecialFunc(input_special_down);
+    glutSpecialUpFunc(input_special_up);
+
     glutMainLoop();
     return 0;
 }
