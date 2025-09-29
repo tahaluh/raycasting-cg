@@ -1,6 +1,7 @@
 #ifndef RAY_H
 #define RAY_H
 #include "../core/vec3.h"
+#include "../body/body.h"
 
 typedef struct
 {
@@ -8,6 +9,12 @@ typedef struct
     vec3 direction;
 } Ray;
 
-int ray_step(const Ray *ray, float *current_dist, float max_dist, float min_dist);
+typedef struct
+{
+    int hit;
+    Body *body;
+} RayStepResult;
+
+RayStepResult ray_step(const Ray *ray, float *current_dist, float max_dist, float min_dist);
 
 #endif

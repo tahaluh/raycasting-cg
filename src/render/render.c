@@ -4,6 +4,7 @@
 #include "../core/vec3.h"
 #include "../scene/scene.h"
 #include "../ray/ray.h"
+#include "../body/body.h"
 
 #ifndef PI
 #define PI 3.14159265358979323846f
@@ -50,28 +51,33 @@ void render_scene(void)
             Ray ray = {cam_pos, dir};
 
             float current_dist = 0.0f;
+            Body *hit_body = NULL;
             int hit = 0;
+
             for (int step = 0; step < 64; ++step)
             {
-                int result = ray_step(&ray, &current_dist, 5.0f, 0.01f);
-                if (result == 1)
+                RayStepResult result = ray_step(&ray, &current_dist, 5.0f, 0.01f);
+                if (result.hit == 1)
                 {
                     hit = 1;
+                    hit_body = result.body;
                     break;
                 }
-                if (result == -1)
+                if (result.hit == -1)
                 {
                     break;
                 }
             }
 
             int pixel_index = (j * W + i) * 3;
-            if (hit)
+            if (hit && hit_body)
             {
-                // paint red
-                frame[pixel_index + 0] = 255 / current_dist;
-                frame[pixel_index + 1] = 0;
-                frame[pixel_index + 2] = 0;
+                // Use the material color of the hit object
+                vec3 color = hit_body->material.color;
+                float intensity = 1.0f / (1.0f + current_dist * 0.1f);
+                frame[pixel_index + 0] = (unsigned char)(color.x * 255 * intensity);
+                frame[pixel_index + 1] = (unsigned char)(color.y * 255 * intensity);
+                frame[pixel_index + 2] = (unsigned char)(color.z * 255 * intensity);
             }
             else
             {

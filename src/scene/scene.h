@@ -4,6 +4,12 @@
 #include "../core/vec3.h"
 #include "../body/body.h"
 
-float scene_sdf(vec3 p);
+typedef struct
+{
+    float min_dist;
+    Body *obj;
+} SdfResult;
+
+SdfResult scene_sdf(vec3 p);
 
 #endif
