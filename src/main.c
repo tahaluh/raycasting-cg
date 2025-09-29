@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include "./render/render.h"
 #include "./core/input.h"
+#include "./lighting/lighting.h"
 
 static unsigned long g_frame = 0;
 static int g_prev_ms = 0;
@@ -40,8 +41,9 @@ static void display(void)
 
     double fps = (dt > 0) ? 1000.0 / dt : 0.0;
     vec3 cam_pos = render_get_camera_position();
-    printf("[frame %lu] dt=%d ms, fps=%.1f, pos=(%.2f, %.2f, %.2f)\n", 
-           g_frame, dt, fps, cam_pos.x, cam_pos.y, cam_pos.z);
+    printf("[frame %lu] dt=%d ms, fps=%.1f, pos=(%.2f, %.2f, %.2f) reflections=%s\n",
+           g_frame, dt, fps, cam_pos.x, cam_pos.y, cam_pos.z,
+           get_reflections_enabled() ? "ON" : "OFF");
     fflush(stdout);
 
     g_prev_ms = now;

@@ -1,8 +1,12 @@
 #include "lighting.h"
 #include "../scene/scene.h"
+#include "../ray/ray.h"
 #include <math.h>
 
 #define SHADOWS_ENABLED 1
+#define MAX_REFLECTION_DEPTH 3
+
+static int REFLECTIONS_ENABLED = 0;
 
 vec3 calculate_normal(vec3 point, const Body *body)
 {
@@ -104,10 +108,11 @@ int is_in_shadow(vec3 point, vec3 normal, vec3 light_dir, float light_distance)
 
     float epsilon = 0.01f; // 0.001f é muito pequeno
     vec3 ray_origin = add(point, mul(normal, epsilon));
+    Ray shadow_ray = {ray_origin, light_dir};
 
     float current_dist = 0.0f;
-    const float max_steps = 64;
     const float min_dist = 0.001f;
+    const int max_steps = 64;
 
     for (int step = 0; step < max_steps; ++step)
     {
@@ -117,22 +122,85 @@ int is_in_shadow(vec3 point, vec3 normal, vec3 light_dir, float light_distance)
             return 0;
         }
 
-        vec3 ray_pos = add(ray_origin, mul(light_dir, current_dist));
-        SdfResult result = scene_sdf(ray_pos, min_dist);
+        RayStepResult result = ray_step(&shadow_ray, &current_dist, light_distance, min_dist);
 
-        if (result.min_dist < min_dist)
+        if (result.hit == 1)
         {
             // hit
             return 1;
         }
 
-        // step
-        float step_size = result.min_dist;
-        if (step_size < min_dist)
-            step_size = min_dist;
-
-        current_dist += step_size;
+        if (result.hit == -1)
+        {
+            return 0;
+        }
     }
 
     return 0;
+}
+
+void set_reflections_enabled(int enabled)
+{
+    REFLECTIONS_ENABLED = enabled;
+}
+
+int get_reflections_enabled(void)
+{
+    return REFLECTIONS_ENABLED;
+}
+
+vec3 trace_ray(const Ray *ray, int depth, float max_dist, float min_dist)
+{
+    if (depth <= 0)
+    {
+        return V(0, 0, 0); // black
+    }
+
+    RayMarchResult march_result = ray_march(ray, max_dist, min_dist);
+
+    if (!march_result.hit || !march_result.hit_body)
+    {
+        return V(0, 0, 0);
+    }
+
+    vec3 hit_point = march_result.hit_point;
+    Body *hit_body = march_result.hit_body;
+    vec3 normal = calculate_normal(hit_point, hit_body);
+    vec3 view_dir = norm(sub(ray->origin, hit_point));
+
+    ShadingInfo shading = {
+        .point = hit_point,
+        .normal = normal,
+        .view_dir = view_dir,
+        .material = hit_body->material};
+
+    // base lighting
+    int light_count;
+    const Light *scene_lights = scene_get_lights(&light_count);
+    vec3 base_color = calculate_lighting(&shading, scene_lights, light_count);
+
+    // distance attenuation
+    float attenuation = 1.0f / (1.0f + march_result.distance * 0.05f);
+    base_color = mul(base_color, attenuation);
+
+    // reflections and reflective material
+    if (REFLECTIONS_ENABLED && hit_body->material.reflectivity > 0.0f)
+    {
+        // reflection ray
+        vec3 incident = norm(ray->direction);
+        vec3 reflect_dir = sub(incident, mul(normal, 2.0f * dot(incident, normal)));
+
+        // origin offser
+        vec3 reflect_origin = add(hit_point, mul(normal, 0.01f));
+        Ray reflect_ray = {reflect_origin, reflect_dir};
+
+        // recursive trace
+        vec3 reflect_color = trace_ray(&reflect_ray, depth - 1, max_dist, min_dist);
+
+        // combine colors
+        float reflectivity = hit_body->material.reflectivity;
+        base_color = add(mul(base_color, 1.0f - reflectivity), mul(reflect_color, reflectivity));
+    }
+
+    return base_color;
 }

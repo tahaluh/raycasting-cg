@@ -1,5 +1,6 @@
 #include "input.h"
 #include "camera.h"
+#include "../lighting/lighting.h"
 #include <GL/glut.h>
 #include <stdio.h>
 
@@ -52,6 +53,10 @@ void input_keyboard_down(unsigned char key, int x, int y)
     case 'e':
     case 'E':
         g_input_state.e_pressed = true;
+        break;
+    case 'r':
+    case 'R':
+        set_reflections_enabled(!get_reflections_enabled());
         break;
     case 27:
         exit(0);

@@ -5,13 +5,13 @@
 // define render bodies
 static Body bodies[] = {
     // Floor plane
-    {.type = BODY_PLANE, .centre = {0, -2, 0}, .geometry = {.plane = {.normal = {0, -1, 0}, .distance = 1.0f}}, .material = {.color = {1.0f, 1.0f, 1.0f}, 1.0f, 0.7f, 0.1f, 8.0f, 0.0f}}, // floor,
+    {.type = BODY_PLANE, .centre = {0, -2, 0}, .geometry = {.plane = {.normal = {0, -1, 0}, .distance = 1.0f}}, .material = {.color = {0.8f, 0.8f, 0.8f}, 0.1f, 0.7f, 0.2f, 16.0f, 0.3f}}, // reflective floor
     // White sphere
     {
         .type = BODY_SPHERE,
         .centre = {0, 0, -3},
         .geometry = {.radius = 1.0f},
-        .material = {.color = {1.0f, 1.0f, 1.0f}, 0.1f, 0.8f, 0.3f, 32.0f, 0.1f}}, // white sphere
+        .material = {.color = {0.9f, 0.9f, 0.9f}, 0.1f, 0.3f, 0.8f, 64.0f, 0.7f}}, // chrome sphere
     // yellow box
     {
         .type = BODY_CUBE,

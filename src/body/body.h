@@ -13,26 +13,26 @@ typedef enum
 
 typedef struct
 {
-    vec3 p1, p2, p3; // Triangle vertices
+    vec3 p1, p2, p3; // vertices
 } TriangleData;
 
 typedef struct
 {
-    vec3 normal;    // Plane normal
-    float distance; // Distance from origin
+    vec3 normal;
+    float distance;
 } PlaneData;
 
 typedef struct
 {
-    vec3 size; // Half-extents (width/2, height/2, depth/2)
+    vec3 size;
 } CubeData;
 
 typedef union
 {
-    float radius;          // For sphere
-    PlaneData plane;       // For plane
-    CubeData cube;         // For cube
-    TriangleData triangle; // For triangle
+    float radius;          // sphere
+    PlaneData plane;       // plane
+    CubeData cube;         // cube
+    TriangleData triangle; // triangle
 } BodyGeometry;
 
 typedef struct
@@ -43,7 +43,6 @@ typedef struct
     Material material;
 } Body;
 
-// Function to calculate SDF for a body
 float body_sdf(vec3 p, const Body *body);
 
 #endif

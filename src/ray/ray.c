@@ -47,3 +47,50 @@ RayStepResult ray_step(const Ray *ray, float *current_dist, float max_dist, floa
     *current_dist += step_size;
     return (RayStepResult){0, 0};
 }
+
+RayMarchResult ray_march(const Ray *ray, float max_dist, float min_dist)
+{
+    if (!ray)
+        return (RayMarchResult){-1, 0, 0.0f, {0, 0, 0}};
+
+    float current_dist = 0.0f;
+    Body *hit_body = 0;
+    int hit = 0;
+
+    // adaptive max steps
+    int max_steps = 64;
+    for (int step = 0; step < max_steps; ++step)
+    {
+        RayStepResult result = ray_step(ray, &current_dist, max_dist, min_dist);
+
+        if (result.hit == 1)
+        {
+            hit = 1;
+            hit_body = result.body;
+            break;
+        }
+
+        if (result.hit == -1)
+        {
+            break;
+        }
+
+        // increase
+        if (step > 32 && current_dist > 5.0f && max_steps < 128)
+        {
+            max_steps = 128;
+        }
+    }
+
+    vec3 hit_point = {0, 0, 0};
+    if (hit && hit_body)
+    {
+        hit_point = add(ray->origin, mul(ray->direction, current_dist));
+    }
+
+    return (RayMarchResult){
+        .hit = hit,
+        .hit_body = hit_body,
+        .distance = current_dist,
+        .hit_point = hit_point};
+}

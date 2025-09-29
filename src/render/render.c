@@ -55,68 +55,15 @@ void render_scene(void)
             vec3 dir = camera_get_ray_direction(&g_camera, screen_x, screen_y, aspect, scale);
             Ray ray = {g_camera.position, dir};
 
-            float current_dist = 0.0f;
-            Body *hit_body = NULL;
-            int hit = 0;
-
-            // dynamic step limit
-            int max_steps = 64;
-            for (int step = 0; step < max_steps; ++step)
-            {
-                RayStepResult result = ray_step(&ray, &current_dist, 20.0f, 0.001f);
-                if (result.hit == 1)
-                {
-                    hit = 1;
-                    hit_body = result.body;
-                    break;
-                }
-                if (result.hit == -1)
-                {
-                    break;
-                }
-
-                // increse steps
-                if (step > 32 && current_dist > 5.0f && max_steps < 128)
-                {
-                    max_steps = 128;
-                }
-            }
-
             int pixel_index = (j * W + i) * 3;
-            if (hit && hit_body)
-            {
-                // hit point
-                vec3 hit_point = add(ray.origin, mul(ray.direction, current_dist));
-                vec3 normal = calculate_normal(hit_point, hit_body);
-                vec3 view_dir = norm(sub(ray.origin, hit_point));
 
-                ShadingInfo shading = {
-                    .point = hit_point,
-                    .normal = normal,
-                    .view_dir = view_dir,
-                    .material = hit_body->material};
+            // ray tracing
+            vec3 final_color = trace_ray(&ray, 3, 20.0f, 0.001f); // depth = 3
 
-                // lights
-                int light_count;
-                const Light *scene_lights = scene_get_lights(&light_count);
-                vec3 final_color = calculate_lighting(&shading, scene_lights, light_count);
-
-                // distance attenuation
-                float attenuation = 1.0f / (1.0f + current_dist * 0.05f);
-                final_color = mul(final_color, attenuation);
-
-                // Clamp to [0,1] and convert to [0,255]
-                frame[pixel_index + 0] = (unsigned char)(fminf(final_color.x, 1.0f) * 255);
-                frame[pixel_index + 1] = (unsigned char)(fminf(final_color.y, 1.0f) * 255);
-                frame[pixel_index + 2] = (unsigned char)(fminf(final_color.z, 1.0f) * 255);
-            }
-            else
-            {
-                // black
-                frame[pixel_index + 0] = 0;
-                frame[pixel_index + 1] = 0;
-                frame[pixel_index + 2] = 0;
-            }
+            // [0,1] to [0,255]
+            frame[pixel_index + 0] = (unsigned char)(fminf(final_color.x, 1.0f) * 255);
+            frame[pixel_index + 1] = (unsigned char)(fminf(final_color.y, 1.0f) * 255);
+            frame[pixel_index + 2] = (unsigned char)(fminf(final_color.z, 1.0f) * 255);
         }
     }
 }
