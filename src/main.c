@@ -11,10 +11,17 @@
 static unsigned long g_frame = 0;
 static int g_prev_ms = 0;
 
-#define WIN_W 500
-#define WIN_H 300
 #define TARGET_FPS 60
 #define FRAME_TIME_MS 0 // ~16.67ms for 60 FPS (rounded down)
+
+#define WIN_W 500
+#define WIN_H 300
+
+// #define WIN_W 800
+// #define WIN_H 600
+
+static int g_win_w = WIN_W;
+static int g_win_h = WIN_H;
 
 static void display(void)
 {
@@ -66,6 +73,10 @@ static void reshape(int w, int h)
     glOrtho(-1, 1, -1, 1, -1, 1);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+
+    float zoom_x = (float)w / WIN_W;
+    float zoom_y = (float)h / WIN_H;
+    glPixelZoom(zoom_x, zoom_y);
 }
 
 static void cleanup(void)
