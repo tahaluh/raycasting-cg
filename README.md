@@ -162,9 +162,8 @@ src/
 - **Profundidade de Reflexão**: 3 níveis
 - **Resolução Padrão**: 800x600
 - **Multi-threading**: Sim 
-- 
 ---
 
 **Desenvolvido por**: [Thauã Magalhães](https://github.com/tahaluh)  
-**Curso**: INTRODUÇÃO À COMPUTAÇÃO GRÁFICA
+**Curso**: INTRODUÇÃO À COMPUTAÇÃO GRÁFICA  
 **Instituição**: Universidade Federal da Paraíba
