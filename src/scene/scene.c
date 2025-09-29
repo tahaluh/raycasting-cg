@@ -9,12 +9,12 @@ static Body bodies[] = {
         .type = BODY_SPHERE,
         .centre = {0, 0, -3},
         .geometry = {.radius = 1.0f},
-        .material = {.color = {0.0f, 1.0f, 0.0f}, 0.1f, 0.8f, 0.3f, 32.0f, 0.1f}}, // Azul mais visível
+        .material = {.color = {1.0f, 1.0f, 1.0f}, 0.1f, 0.8f, 0.3f, 32.0f, 0.1f}}, // white sphere
     {
         .type = BODY_PLANE,
-        .centre = {0, -1, 0},
-        .geometry = {.plane = {.normal = {0, 1, 0}, .distance = 1.0f}},
-        .material = {.color = {0.8f, 0.8f, 0.8f}, 0.2f, 0.7f, 0.1f, 8.0f, 0.0f}}, // Grey plane
+        .centre = {0, -3, 0},
+        .geometry = {.plane = {.normal = {0, 1, 0}, .distance = 3.0f}},
+        .material = {.color = {1.0f, 1.0f, 1.0f}, 0.2f, 0.7f, 0.1f, 8.0f, 0.0f}}, // floor
 };
 static const int num_bodies = sizeof(bodies) / sizeof(bodies[0]);
 
@@ -24,19 +24,20 @@ static Light lights[] = {
     {
         .type = LIGHT_AMBIENT,
         .color = {1.0f, 1.0f, 1.0f},
-        .intensity = 0.2f},
-    // directional (sun-like)
+        .intensity = 0.4f},
+    // directional
     {
         .type = LIGHT_DIRECTIONAL,
-        .color = {1.0f, 1.0f, 0.9f},
-        .intensity = 0.8f,
-        .direction = {-1, -1, -1}},
-    // point (accent light)
-    {
-        .type = LIGHT_POINT,
-        .color = {1.0f, 0.8f, 0.6f},
+        .color = {1.0f, 1.0f, 1.0f},
         .intensity = 1.0f,
-        .position = {2, 2, -1}}};
+        .direction = {-1, -1, -1}},
+    // point
+    // {
+    //     .type = LIGHT_POINT,
+    //     .color = {0.0f, 0.0f, 1.0f},
+    //     .intensity = 1.0f,
+    //     .position = {2, 2, -1}}
+};
 static const int num_lights = sizeof(lights) / sizeof(lights[0]);
 
 // shortest distance to any body

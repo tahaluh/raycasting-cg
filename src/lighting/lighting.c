@@ -13,7 +13,10 @@ vec3 calculate_normal(vec3 point, const Body *body)
 
 static vec3 calculate_ambient_light(const Light *light, const Material *material)
 {
-    return mul(mul(material->color, light->intensity), material->ambient);
+    vec3 ambient_color = V(material->color.x * light->color.x,
+                           material->color.y * light->color.y,
+                           material->color.z * light->color.z);
+    return mul(ambient_color, light->intensity * material->ambient);
 }
 
 static vec3 calculate_directional_light(const Light *light, const ShadingInfo *shading)
@@ -22,7 +25,10 @@ static vec3 calculate_directional_light(const Light *light, const ShadingInfo *s
 
     // Diffuse
     float diff = fmaxf(dot(shading->normal, light_dir), 0.0f);
-    vec3 diffuse = mul(mul(shading->material.color, shading->material.diffuse), diff * light->intensity);
+    vec3 diffuse_color = V(shading->material.color.x * light->color.x,
+                           shading->material.color.y * light->color.y,
+                           shading->material.color.z * light->color.z);
+    vec3 diffuse = mul(diffuse_color, shading->material.diffuse * diff * light->intensity);
 
     // Specular (Phong)
     vec3 reflect_dir = sub(mul(shading->normal, 2.0f * dot(light_dir, shading->normal)), light_dir);
@@ -40,7 +46,10 @@ static vec3 calculate_point_light(const Light *light, const ShadingInfo *shading
 
     // diffuse
     float diff = fmaxf(dot(shading->normal, light_dir), 0.0f);
-    vec3 diffuse = mul(mul(shading->material.color, shading->material.diffuse), diff * light->intensity * attenuation);
+    vec3 diffuse_color = V(shading->material.color.x * light->color.x,
+                           shading->material.color.y * light->color.y,
+                           shading->material.color.z * light->color.z);
+    vec3 diffuse = mul(diffuse_color, shading->material.diffuse * diff * light->intensity * attenuation);
 
     // specular (Phong)
     vec3 reflect_dir = sub(mul(shading->normal, 2.0f * dot(light_dir, shading->normal)), light_dir);
