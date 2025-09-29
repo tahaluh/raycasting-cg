@@ -10,7 +10,7 @@ static double animation_start_time = 0.0;
 static double pause_time = 0.0;
 
 // light control
-static int lights_enabled[10] = {1, 1, 1, 0, 0, 0, 0, 0, 0, 0}; // 0-9
+static int lights_enabled[10] = {1, 1, 1, 0, 0, 0, 0, 0, 0, 0};
 
 #define ANIMATED_BALL_INDEX 1 // ball index (white sphere)
 #define MAX_HEIGHT -5.0f
@@ -38,23 +38,64 @@ static const int num_bodies = sizeof(bodies) / sizeof(bodies[0]);
 
 // define scene lights
 static Light lights[] = {
-    // ambient
+    // 0: ambient
     {
         .type = LIGHT_AMBIENT,
         .color = {1.0f, 1.0f, 1.0f},
         .intensity = 0.4f},
-    // directional
+    // 1: directional
     {
         .type = LIGHT_DIRECTIONAL,
         .color = {1.0f, 1.0f, 1.0f},
         .intensity = 1.0f,
         .direction = {1, 1, 1}},
-    // point
+    // 2: point blue
     {
         .type = LIGHT_POINT,
         .color = {0.0f, 0.0f, 1.0f},
         .intensity = 0.9f,
-        .position = {-5, -2, -2}}};
+        .position = {-5, -2, -2}},
+    // 3: point red
+    {
+        .type = LIGHT_POINT,
+        .color = {1.0f, 0.2f, 0.2f},
+        .intensity = 0.8f,
+        .position = {5, 1, -2}},
+    // 4: point green
+    {
+        .type = LIGHT_POINT,
+        .color = {0.2f, 1.0f, 0.2f},
+        .intensity = 0.8f,
+        .position = {3, -1, -2}},
+    // 5: directional purple
+    {
+        .type = LIGHT_DIRECTIONAL,
+        .color = {0.8f, 0.2f, 0.8f},
+        .intensity = 0.7f,
+        .direction = {0, 1, 0}},
+    // 6: point orange
+    {
+        .type = LIGHT_POINT,
+        .color = {1.0f, 0.6f, 0.1f},
+        .intensity = 0.5f,
+        .position = {2, -1, -5}},
+    // 7: directional cyan
+    {
+        .type = LIGHT_DIRECTIONAL,
+        .color = {0.1f, 0.8f, 0.8f},
+        .intensity = 0.4f,
+        .direction = {0, 1, -1}},
+    // 8: point yellow
+    {
+        .type = LIGHT_POINT,
+        .color = {1.0f, 1.0f, 0.2f},
+        .intensity = 0.6f,
+        .position = {-3, 0, -1}},
+    // 9: ambient warm
+    {
+        .type = LIGHT_AMBIENT,
+        .color = {1.0f, 1.0f, 0.4f},
+        .intensity = 10.0f}};
 static const int num_lights = sizeof(lights) / sizeof(lights[0]);
 
 // shortest distance to any body
@@ -90,20 +131,20 @@ SdfResult scene_sdf(vec3 p, float min_threshold)
 
 const Light *scene_get_lights(int *count)
 {
-    // thread-local storage
+    // thread-local storage (cada thread tem seu próprio array)
     static __thread Light active_lights[10];
+    int active_count = 0;
 
-    for (int i = 0; i < num_lights && i < 10; i++)
+    for (int i = 0; i < num_lights && active_count < 10; i++)
     {
-        active_lights[i] = lights[i];
-
-        if (!lights_enabled[i])
+        if (lights_enabled[i])
         {
-            active_lights[i].intensity = 0.0f;
+            active_lights[active_count] = lights[i];
+            active_count++;
         }
     }
 
-    *count = num_lights;
+    *count = active_count;
     return active_lights;
 }
 
