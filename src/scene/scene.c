@@ -4,17 +4,21 @@
 
 // define render bodies
 static Body bodies[] = {
-    // Blue sphere
+    // Floor plane
+    {.type = BODY_PLANE, .centre = {0, -2, 0}, .geometry = {.plane = {.normal = {0, -1, 0}, .distance = 1.0f}}, .material = {.color = {1.0f, 1.0f, 1.0f}, 1.0f, 0.7f, 0.1f, 8.0f, 0.0f}}, // floor,
+    // White sphere
     {
         .type = BODY_SPHERE,
         .centre = {0, 0, -3},
         .geometry = {.radius = 1.0f},
         .material = {.color = {1.0f, 1.0f, 1.0f}, 0.1f, 0.8f, 0.3f, 32.0f, 0.1f}}, // white sphere
+    // yellow box
     {
-        .type = BODY_PLANE,
-        .centre = {0, -2, 0},
-        .geometry = {.plane = {.normal = {0, -1, 0}, .distance = 1.0f}},
-        .material = {.color = {1.0f, 1.0f, 1.0f}, 1.0f, 0.7f, 0.1f, 8.0f, 0.0f}}, // floor
+        .type = BODY_CUBE,
+        .centre = {-2.5f, -1.0f, -4.0f},
+        .geometry = {.cube = {.size = {1.2f, 0.6f, 0.8f}}},                        // width, height, depth
+        .material = {.color = {1.0f, 1.0f, 0.0f}, 0.1f, 0.7f, 0.2f, 16.0f, 0.0f}}, // yellow box
+
 };
 static const int num_bodies = sizeof(bodies) / sizeof(bodies[0]);
 
@@ -45,7 +49,7 @@ SdfResult scene_sdf(vec3 p, float min_threshold)
     float min_dist = body_sdf(p, &bodies[0]);
     Body *object = &bodies[0];
 
-    if (min_dist < min_threshold)
+    if (min_dist < min_threshold * 0.5f)
     {
         SdfResult res = {min_dist, object};
         return res;
@@ -59,7 +63,7 @@ SdfResult scene_sdf(vec3 p, float min_threshold)
             min_dist = d;
             object = &bodies[i];
 
-            if (min_dist < min_threshold)
+            if (min_dist < min_threshold * 0.5f)
             {
                 break;
             }
