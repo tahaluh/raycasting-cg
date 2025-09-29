@@ -1,6 +1,7 @@
 #include "input.h"
 #include "camera.h"
 #include "../lighting/lighting.h"
+#include "../scene/scene.h"
 #include <GL/glut.h>
 #include <stdio.h>
 
@@ -57,6 +58,40 @@ void input_keyboard_down(unsigned char key, int x, int y)
     case 'r':
     case 'R':
         set_reflections_enabled(!get_reflections_enabled());
+        break;
+    case 'p':
+    case 'P':
+        scene_toggle_animation();
+        break;
+    case '0':
+        scene_toggle_light(0);
+        break; // ambient
+    case '1':
+        scene_toggle_light(1);
+        break; // directional
+    case '2':
+        scene_toggle_light(2);
+        break; // point
+    case '3':
+        scene_toggle_light(3);
+        break;
+    case '4':
+        scene_toggle_light(4);
+        break;
+    case '5':
+        scene_toggle_light(5);
+        break;
+    case '6':
+        scene_toggle_light(6);
+        break;
+    case '7':
+        scene_toggle_light(7);
+        break;
+    case '8':
+        scene_toggle_light(8);
+        break;
+    case '9':
+        scene_toggle_light(9);
         break;
     case 27:
         exit(0);

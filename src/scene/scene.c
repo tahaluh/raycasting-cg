@@ -1,6 +1,20 @@
 #include "scene.h"
 #include "../lighting/lighting.h"
 #include <math.h>
+#include <sys/time.h>
+#include <stddef.h>
+
+// animation
+static int animation_paused = 1;
+static double animation_start_time = 0.0;
+static double pause_time = 0.0;
+
+// light control
+static int lights_enabled[10] = {1, 1, 1, 0, 0, 0, 0, 0, 0, 0}; // 0-9
+
+#define ANIMATED_BALL_INDEX 1 // ball index (white sphere)
+#define MAX_HEIGHT -5.0f
+#define MIN_HEIGHT -0.0f
 
 // define render bodies
 static Body bodies[] = {
@@ -9,7 +23,7 @@ static Body bodies[] = {
     // White sphere
     {
         .type = BODY_SPHERE,
-        .centre = {0, 0, -3},
+        .centre = {0, MAX_HEIGHT, -3},
         .geometry = {.radius = 1.0f},
         .material = {.color = {0.9f, 0.9f, 0.9f}, 0.1f, 0.3f, 0.8f, 64.0f, 0.7f}}, // chrome sphere
     // yellow box
@@ -76,6 +90,124 @@ SdfResult scene_sdf(vec3 p, float min_threshold)
 
 const Light *scene_get_lights(int *count)
 {
+    // thread-local storage
+    static __thread Light active_lights[10];
+
+    for (int i = 0; i < num_lights && i < 10; i++)
+    {
+        active_lights[i] = lights[i];
+
+        if (!lights_enabled[i])
+        {
+            active_lights[i].intensity = 0.0f;
+        }
+    }
+
     *count = num_lights;
-    return lights;
+    return active_lights;
+}
+
+// animation functions
+static double get_current_time(void)
+{
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return tv.tv_sec + tv.tv_usec / 1000000.0;
+}
+
+void scene_toggle_animation(void)
+{
+    if (animation_paused)
+    {
+        double current_time = get_current_time();
+        animation_start_time += (current_time - pause_time);
+        animation_paused = 0;
+    }
+    else
+    {
+        pause_time = get_current_time();
+        animation_paused = 1;
+    }
+}
+
+static float bezier_cubic(float t, float p0, float p1, float p2, float p3)
+{
+    float u = 1.0f - t;
+    float tt = t * t;
+    float uu = u * u;
+    float uuu = uu * u;
+    float ttt = tt * t;
+    return uuu * p0 + 3.0f * uu * t * p1 + 3.0f * u * tt * p2 + ttt * p3;
+}
+
+static float calculate_bounce_height(float t)
+{
+    t = fmodf(t, 1.0f);
+
+    if (t < 0.5f)
+    {
+        float s = t * 2.0f;
+
+        float p0 = MAX_HEIGHT;
+        float p3 = MIN_HEIGHT;
+
+        float p1 = MAX_HEIGHT;
+        float p2 = MAX_HEIGHT * 0.3f + MIN_HEIGHT * 0.7f;
+
+        return bezier_cubic(s, p0, p1, p2, p3);
+    }
+    else
+    {
+        float s = (t - 0.5f) * 2.0f;
+
+        float p0 = MIN_HEIGHT;
+        float p3 = MAX_HEIGHT;
+
+        float p1 = MIN_HEIGHT * 0.3f + MAX_HEIGHT * 0.7f;
+        float p2 = MAX_HEIGHT;
+
+        return bezier_cubic(s, p0, p1, p2, p3);
+    }
+}
+
+void scene_update_animation(void)
+{
+    if (animation_paused)
+        return;
+
+    double current_time = get_current_time();
+
+    if (animation_start_time == 0.0)
+    {
+        animation_start_time = current_time;
+        return;
+    }
+
+    double elapsed = current_time - animation_start_time;
+    float cycle_duration = 2.0f;
+    float t = (float)(elapsed / cycle_duration);
+
+    bodies[ANIMATED_BALL_INDEX].centre.y = calculate_bounce_height(t);
+}
+int scene_is_animation_paused(void)
+{
+    return animation_paused;
+}
+
+void scene_toggle_light(int light_index)
+{
+    if (light_index >= 0 && light_index < 10)
+    {
+        lights_enabled[light_index] = !lights_enabled[light_index];
+        printf("Light %d %s\n", light_index, lights_enabled[light_index] ? "ON" : "OFF");
+    }
+}
+
+int scene_is_light_enabled(int light_index)
+{
+    if (light_index >= 0 && light_index < 10)
+    {
+        return lights_enabled[light_index];
+    }
+    return 0;
 }
