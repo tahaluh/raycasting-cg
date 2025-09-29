@@ -2,6 +2,8 @@
 #include "../scene/scene.h"
 #include <math.h>
 
+#define SHADOWS_ENABLED 1
+
 vec3 calculate_normal(vec3 point, const Body *body)
 {
     float epsilon = 0.001f;
@@ -25,7 +27,7 @@ static vec3 calculate_directional_light(const Light *light, const ShadingInfo *s
     vec3 light_dir = norm(mul(light->direction, -1.0f)); // Reverse direction
 
     // shadows
-    if (is_in_shadow(shading->point, light_dir, 1000.0f))
+    if (is_in_shadow(shading->point, shading->normal, light_dir, 1000.0f))
     {
         return V(0, 0, 0);
     }
@@ -52,7 +54,7 @@ static vec3 calculate_point_light(const Light *light, const ShadingInfo *shading
     float attenuation = 1.0f / (1.0f + 0.1f * distance + 0.01f * distance * distance);
 
     // shadows
-    if (is_in_shadow(shading->point, light_dir, distance))
+    if (is_in_shadow(shading->point, shading->normal, light_dir, distance))
     {
         return V(0, 0, 0);
     }
@@ -95,12 +97,15 @@ vec3 calculate_lighting(const ShadingInfo *shading, const Light *lights, int num
     return final_color;
 }
 
-int is_in_shadow(vec3 point, vec3 light_dir, float light_distance)
+int is_in_shadow(vec3 point, vec3 normal, vec3 light_dir, float light_distance)
 {
-    float epsilon = 0.001f;
-    vec3 ray_origin = add(point, mul(light_dir, epsilon));
+    if (!SHADOWS_ENABLED)
+        return 0;
 
-    float current_dist = epsilon;
+    float epsilon = 0.01f; // 0.001f é muito pequeno
+    vec3 ray_origin = add(point, mul(normal, epsilon));
+
+    float current_dist = 0.0f;
     const float max_steps = 64;
     const float min_dist = 0.001f;
 

@@ -32,12 +32,11 @@ static Light lights[] = {
         .intensity = 1.0f,
         .direction = {-1, -1, -1}},
     // point
-    // {
-    //     .type = LIGHT_POINT,
-    //     .color = {0.0f, 0.0f, 1.0f},
-    //     .intensity = 1.0f,
-    //     .position = {2, 2, -1}}
-};
+    {
+        .type = LIGHT_POINT,
+        .color = {0.0f, 0.0f, 1.0f},
+        .intensity = 0.9f,
+        .position = {-2, 2, -1}}};
 static const int num_lights = sizeof(lights) / sizeof(lights[0]);
 
 // shortest distance to any body
