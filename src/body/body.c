@@ -4,14 +4,13 @@
 
 static float sphere_sdf(vec3 p, vec3 centre, float radius)
 {
-    float dx = p.x - centre.x;
-    float dy = p.y - centre.y;
-    float dz = p.z - centre.z;
-    return sqrtf(dx * dx + dy * dy + dz * dz) - radius;
+    vec3 offset = sub(p, centre);
+    return sqrtf(dot(offset, offset)) - radius;
 }
 
 static float plane_sdf(vec3 p, vec3 normal, float distance)
 {
+
     return dot(p, normal) + distance;
 }
 
@@ -29,26 +28,21 @@ static float cube_sdf(vec3 p, vec3 centre, vec3 size)
 
 static float triangle_sdf(vec3 p, vec3 a, vec3 b, vec3 c)
 {
-    // Simplified triangle SDF - distance to closest point on triangle
     vec3 ba = sub(b, a);
     vec3 pa = sub(p, a);
     vec3 ac = sub(a, c);
     vec3 pc = sub(p, c);
 
-    // Calculate normal using cross product
     vec3 nor = cross(ba, ac);
 
-    // Simple distance to triangle plane
     float nor_length = sqrtf(dot(nor, nor));
     if (nor_length < 1e-6f)
     {
-        // Degenerate triangle, return distance to point a
         return sqrtf(dot(pa, pa));
     }
 
     float plane_dist = fabsf(dot(nor, pa)) / nor_length;
 
-    // Distance to triangle vertices (simplified)
     float dist_a = sqrtf(dot(pa, pa));
     float dist_c = sqrtf(dot(pc, pc));
 
@@ -68,6 +62,6 @@ float body_sdf(vec3 p, const Body *body)
     case BODY_TRIANGLE:
         return triangle_sdf(p, body->geometry.triangle.p1, body->geometry.triangle.p2, body->geometry.triangle.p3);
     default:
-        return 1e30f; // Large number instead of INFINITY
+        return 1e30f;
     }
 }

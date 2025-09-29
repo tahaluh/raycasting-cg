@@ -7,9 +7,9 @@
 
 void camera_init(Camera *camera)
 {
-    camera->position = V(0.0f, 0.0f, 0.0f);
+    camera->position = V(0.0f, 0.0f, 2.0f);
     camera->yaw = -90.0f;
-    camera->pitch = 0.0f;
+    camera->pitch = -10.0f;
     camera->move_speed = 2.5f;
     camera->rotation_speed = 45.0f; // degrees per second
 

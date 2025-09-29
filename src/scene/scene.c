@@ -12,9 +12,9 @@ static Body bodies[] = {
         .material = {.color = {1.0f, 1.0f, 1.0f}, 0.1f, 0.8f, 0.3f, 32.0f, 0.1f}}, // white sphere
     {
         .type = BODY_PLANE,
-        .centre = {0, -3, 0},
-        .geometry = {.plane = {.normal = {0, 1, 0}, .distance = 3.0f}},
-        .material = {.color = {1.0f, 1.0f, 1.0f}, 0.2f, 0.7f, 0.1f, 8.0f, 0.0f}}, // floor
+        .centre = {0, -2, 0},
+        .geometry = {.plane = {.normal = {0, 1, 0}, .distance = 2.0f}},
+        .material = {.color = {1.0f, 1.0f, 1.0f}, 1.0f, 0.7f, 0.1f, 8.0f, 0.0f}}, // floor
 };
 static const int num_bodies = sizeof(bodies) / sizeof(bodies[0]);
 
@@ -41,10 +41,16 @@ static Light lights[] = {
 static const int num_lights = sizeof(lights) / sizeof(lights[0]);
 
 // shortest distance to any body
-SdfResult scene_sdf(vec3 p)
+SdfResult scene_sdf(vec3 p, float min_threshold)
 {
     float min_dist = body_sdf(p, &bodies[0]);
     Body *object = &bodies[0];
+
+    if (min_dist < min_threshold)
+    {
+        SdfResult res = {min_dist, object};
+        return res;
+    }
 
     for (int i = 1; i < num_bodies; ++i)
     {
@@ -53,6 +59,11 @@ SdfResult scene_sdf(vec3 p)
         {
             min_dist = d;
             object = &bodies[i];
+
+            if (min_dist < min_threshold)
+            {
+                break;
+            }
         }
     }
 

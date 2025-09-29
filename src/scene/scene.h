@@ -11,7 +11,7 @@ typedef struct
     Body *obj;
 } SdfResult;
 
-SdfResult scene_sdf(vec3 p);
+SdfResult scene_sdf(vec3 p, float min_threshold);
 const Light *scene_get_lights(int *count);
 
 #endif

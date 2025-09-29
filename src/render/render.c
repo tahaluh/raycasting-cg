@@ -59,9 +59,11 @@ void render_scene(void)
             Body *hit_body = NULL;
             int hit = 0;
 
-            for (int step = 0; step < 64; ++step)
+            // dynamic step limit
+            int max_steps = 64;
+            for (int step = 0; step < max_steps; ++step)
             {
-                RayStepResult result = ray_step(&ray, &current_dist, 5.0f, 0.01f);
+                RayStepResult result = ray_step(&ray, &current_dist, 20.0f, 0.001f);
                 if (result.hit == 1)
                 {
                     hit = 1;
@@ -71,6 +73,12 @@ void render_scene(void)
                 if (result.hit == -1)
                 {
                     break;
+                }
+
+                // increse steps
+                if (step > 32 && current_dist > 5.0f && max_steps < 128)
+                {
+                    max_steps = 128;
                 }
             }
 
