@@ -5,6 +5,7 @@
 #include "../scene/scene.h"
 #include "../ray/ray.h"
 #include "../body/body.h"
+#include "../lighting/lighting.h"
 
 #ifndef PI
 #define PI 3.14159265358979323846f
@@ -72,16 +73,34 @@ void render_scene(void)
             int pixel_index = (j * W + i) * 3;
             if (hit && hit_body)
             {
-                // Use the material color of the hit object
-                vec3 color = hit_body->material.color;
-                float intensity = 1.0f / (1.0f + current_dist * 0.1f);
-                frame[pixel_index + 0] = (unsigned char)(color.x * 255 * intensity);
-                frame[pixel_index + 1] = (unsigned char)(color.y * 255 * intensity);
-                frame[pixel_index + 2] = (unsigned char)(color.z * 255 * intensity);
+                // hit point
+                vec3 hit_point = add(ray.origin, mul(ray.direction, current_dist));
+                vec3 normal = calculate_normal(hit_point, hit_body);
+                vec3 view_dir = norm(sub(ray.origin, hit_point));
+
+                ShadingInfo shading = {
+                    .point = hit_point,
+                    .normal = normal,
+                    .view_dir = view_dir,
+                    .material = hit_body->material};
+
+                // lights
+                int light_count;
+                const Light *scene_lights = scene_get_lights(&light_count);
+                vec3 final_color = calculate_lighting(&shading, scene_lights, light_count);
+
+                // distance attenuation
+                float attenuation = 1.0f / (1.0f + current_dist * 0.05f);
+                final_color = mul(final_color, attenuation);
+
+                // Clamp to [0,1] and convert to [0,255]
+                frame[pixel_index + 0] = (unsigned char)(fminf(final_color.x, 1.0f) * 255);
+                frame[pixel_index + 1] = (unsigned char)(fminf(final_color.y, 1.0f) * 255);
+                frame[pixel_index + 2] = (unsigned char)(fminf(final_color.z, 1.0f) * 255);
             }
             else
             {
-                // paint black
+                // black
                 frame[pixel_index + 0] = 0;
                 frame[pixel_index + 1] = 0;
                 frame[pixel_index + 2] = 0;

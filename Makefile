@@ -1,7 +1,7 @@
 # Makefile
 CC      := gcc
 CFLAGS  := -O3 -march=native -ffast-math -fno-math-errno -Wall -Wextra -fopenmp \
-           -Isrc -Isrc/core -Isrc/render -Isrc/scene -Isrc/primitives
+           -Isrc -Isrc/core -Isrc/render -Isrc/scene -Isrc/primitives -Isrc/lighting
 LDLIBS  := -lGL -lGLU -lglut -lm -fopenmp
 
 SRCDIR  := src

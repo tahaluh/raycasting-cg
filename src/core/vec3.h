@@ -21,5 +21,12 @@ static inline vec3 norm(vec3 a)
     float l = sqrtf(dot(a, a));
     return l > 0 ? mul(a, 1.0f / l) : a;
 }
+static inline vec3 cross(vec3 a, vec3 b)
+{
+    return V(
+        a.y * b.z - a.z * b.y,
+        a.z * b.x - a.x * b.z,
+        a.x * b.y - a.y * b.x);
+}
 
 #endif
