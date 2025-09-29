@@ -1,6 +1,7 @@
 #include <GL/glut.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 #include "./render/render.h"
 #include "./core/input.h"
 
@@ -9,11 +10,20 @@ static int g_prev_ms = 0;
 
 #define WIN_W 500
 #define WIN_H 300
+#define TARGET_FPS 60
+#define FRAME_TIME_MS 0 // ~16.67ms for 60 FPS (rounded down)
 
 static void display(void)
 {
     int now = glutGet(GLUT_ELAPSED_TIME);
     int dt = (g_prev_ms == 0) ? 0 : (now - g_prev_ms);
+
+    // FPS limiting
+    if (dt < FRAME_TIME_MS && g_prev_ms != 0)
+    {
+        glutPostRedisplay();
+        return;
+    }
 
     // input
     float delta_time = dt / 1000.0f; // seconds
